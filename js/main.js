@@ -500,7 +500,7 @@ function criarAmbiente(scene) {
 
 }
 
-// day/night cycle updater
+// Função para atualizar o ciclo do dia e da noite
 function atualizarCicloDia(t) {
   const phase = (t % cycle.duration) / cycle.duration;
   const angle = phase * Math.PI * 2;
@@ -572,7 +572,7 @@ function atualizarNeve() {
 function atualizarAmbiente(t) {
   for (const c of clouds) {
     c.position.x += c.userData.speed * Math.sin(t * 0.1 + c.position.z);
-    // wrap around horizontally
+    // Envolve horizontalmente
     if (c.position.x > 40) c.position.x = -40;
     if (c.position.x < -40) c.position.x = 40;
   }
@@ -581,14 +581,17 @@ function atualizarAmbiente(t) {
   atualizarNeve();
 }
 
+// Criação da cena
 export const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // nicer sky blue
+scene.background = new THREE.Color(0x87ceeb); // azul do céu mais bonito
 
+// Criação da câmera
 export const camera = new THREE.PerspectiveCamera(
   60, window.innerWidth / window.innerHeight, 0.1, 100
 );
 camera.position.set(0, 4, 10);
 
+// Criação do renderizador
 export const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -596,8 +599,10 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+// Adiciona o renderizador ao corpo do documento
 document.body.appendChild(renderer.domElement);
 
+// Variáveis para controle de teclas e movimento da câmera
 let keys = {};
 let cameraRotationX = 0;
 let cameraRotationY = 0;
@@ -605,14 +610,17 @@ let isMouseDown = false;
 let lastMouseX = 0;
 let lastMouseY = 0;
 
+// Evento de pressionar tecla
 document.addEventListener('keydown', (event) => {
   keys[event.code] = true;
 });
 
+// Evento de soltar tecla
 document.addEventListener('keyup', (event) => {
   keys[event.code] = false;
 });
 
+// Evento de mouse pressionado
 document.addEventListener('mousedown', (event) => {
   isMouseDown = true;
   lastMouseX = event.clientX;
