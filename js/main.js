@@ -1,55 +1,74 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
-// Boneco code
-let boneco, chapeu;
+// Código do Boneco de Neve
+let boneco, chapeu, bracoEsq, bracoDir;
 
+// Função para criar o boneco de neve na cena
 function criarBoneco(scene) {
+  // Cria um grupo para organizar todas as partes do boneco
   boneco = new THREE.Group();
   scene.add(boneco);
 
-  const branco = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const preto = new THREE.MeshStandardMaterial({ color: 0x000000 });
-  const laranja = new THREE.MeshStandardMaterial({ color: 0xff8833 });
-  const vermelho = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-  const verde = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-  const azul = new THREE.MeshStandardMaterial({ color: 0x0000ff });
-  const vermelhoEscuro = new THREE.MeshStandardMaterial({ color: 0x8b0000 }); // dark red for hat
+  // Materiais com propriedades realistas (baseado em materiais e luzes)
+  const branco = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8, metalness: 0.0 });
+  const preto = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.9, metalness: 0.1 });
+  const laranja = new THREE.MeshStandardMaterial({ color: 0xff8833, roughness: 0.7, metalness: 0.0, emissive: 0x331100 });
+  const vermelho = new THREE.MeshStandardMaterial({ color: 0xff0000, roughness: 0.6, metalness: 0.0 });
+  const verde = new THREE.MeshStandardMaterial({ color: 0x00ff00, roughness: 0.5, metalness: 0.0 });
+  const azul = new THREE.MeshStandardMaterial({ color: 0x0000ff, roughness: 0.5, metalness: 0.0 });
+  const vermelhoEscuro = new THREE.MeshStandardMaterial({ color: 0x8b0000, roughness: 0.8, metalness: 0.2 }); // vermelho escuro para o chapéu
 
+  // Base do boneco (bola inferior)
   const base = new THREE.Mesh(new THREE.SphereGeometry(1.5), branco);
   base.position.y = 1.5;
   boneco.add(base);
 
+  // Tronco do boneco (bola média)
   const tronco = new THREE.Mesh(new THREE.SphereGeometry(1.1), branco);
   tronco.position.y = 3.3;
   boneco.add(tronco);
 
-  // decorative buttons on the trunk
+  // Ombros para ligar os braços ao tronco
+  const ombroEsq = new THREE.Mesh(new THREE.SphereGeometry(0.3), branco);
+  ombroEsq.position.set(-1.0, 3.758, 0);
+  boneco.add(ombroEsq);
+  
+  const ombroDir = new THREE.Mesh(new THREE.SphereGeometry(0.3), branco);
+  ombroDir.position.set(1.0, 3.758, 0);
+  boneco.add(ombroDir);
+
+  // Botões decorativos no tronco
   const botoes = [vermelho, verde, azul];
   function botao(yoffset, cor) {
-    const b = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), cor);
-    b.position.set(0, 3.3 + yoffset, 0.95);
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), cor);
+    b.position.set(0, 3.3 + yoffset, 1.0);
+    b.castShadow = true;
+    b.receiveShadow = true;
     return b;
   }
   boneco.add(botao(-0.25, vermelho), botao(0, verde), botao(0.25, azul));
 
+  // Cabeça do boneco
   const cabeca = new THREE.Mesh(new THREE.SphereGeometry(0.7), branco);
   cabeca.position.y = 4.8;
   boneco.add(cabeca);
 
-  function braco(x) {
-    const b = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.05, 0.05, 2),
-      preto
-    );
-    // rotate arms diagonally and raise slightly for a friendlier pose
-    const tilt = (x > 0) ? -Math.PI / 6 : Math.PI / 6;
-    b.rotation.z = Math.PI / 2 + tilt;
-    b.position.set(x, 3.5, 0.25);
-    return b;
-  }
-  boneco.add(braco(-1.6), braco(1.6));
+  // Braços simples (sem articulação)
+  bracoEsq = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.5), preto);
+  bracoEsq.position.set(-1.5, 3.558, 0);
+  bracoEsq.rotation.z = -Math.PI / 3; // diagonal para baixo-esquerda
+  boneco.add(bracoEsq);
+  
+  bracoDir = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.5), preto);
+  bracoDir.position.set(1.5, 3.558, 0);
+  bracoDir.rotation.z = Math.PI / 3; // diagonal para baixo-direita
+  boneco.add(bracoDir);
+  
+  // Garantir sombras nos braços
+  bracoEsq.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  bracoDir.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
 
-  /* OLHOS */
+  // Olhos do boneco
   function olho(x) {
     const o = new THREE.Mesh(
       new THREE.SphereGeometry(0.08, 16, 16),
@@ -60,7 +79,7 @@ function criarBoneco(scene) {
   }
   boneco.add(olho(-0.2), olho(0.2));
 
-  /* SOBRANCELHAS */
+  // Sobrancelhas
   function sobrancelha(x) {
     const s = new THREE.Mesh(
       new THREE.CylinderGeometry(0.02, 0.02, 0.3),
@@ -72,7 +91,7 @@ function criarBoneco(scene) {
   }
   boneco.add(sobrancelha(-0.3), sobrancelha(0.3));
 
-  /* BOCA */
+  // Boca (três pontos)
   const boca1 = new THREE.Mesh(new THREE.SphereGeometry(0.03), preto);
   boca1.position.set(-0.1, 4.6, 0.65);
   const boca2 = new THREE.Mesh(new THREE.SphereGeometry(0.03), preto);
@@ -81,15 +100,28 @@ function criarBoneco(scene) {
   boca3.position.set(0.1, 4.6, 0.65);
   boneco.add(boca1, boca2, boca3);
 
+  // Nariz articulado (cenoura)
+  const narizGroup = new THREE.Group();
   const nariz = new THREE.Mesh(
     new THREE.ConeGeometry(0.15, 0.6),
     laranja
   );
   nariz.rotation.x = Math.PI / 2;
-  nariz.position.set(0, 4.8, 0.7);
-  boneco.add(nariz);
+  nariz.position.set(0, 0, 0);
+  narizGroup.add(nariz);
 
-  /* CACHECOL */
+  narizGroup.position.set(0, 4.8, 0.7);
+  boneco.add(narizGroup);
+
+  // Luz pontual no nariz para efeito de brilho
+  const noseLight = new THREE.PointLight(0xffaa44, 0.5, 10);
+  noseLight.position.set(0, 4.8, 0.7);
+  boneco.add(noseLight);
+
+  // Referência para animação
+  boneco.userData.narizGroup = narizGroup;
+
+  // Cachecol do boneco
   const cachecol = new THREE.Mesh(
     new THREE.TorusGeometry(0.6, 0.1, 8, 16),
     vermelho
@@ -98,7 +130,7 @@ function criarBoneco(scene) {
   cachecol.position.y = 4.2;
   boneco.add(cachecol);
 
-  /* CHAPÉU */
+  // Chapéu do boneco (ligado à hierarquia para derreter com o boneco)
   chapeu = new THREE.Group();
   const aba = new THREE.Mesh(
     new THREE.CylinderGeometry(0.9, 0.9, 0.1),
@@ -110,20 +142,20 @@ function criarBoneco(scene) {
   );
   topo.position.y = 0.45;
   chapeu.add(aba, topo);
-  chapeu.position.y = 5.6;
-  boneco.add(chapeu);
+  chapeu.position.set(0, 5.6, 0);
+  boneco.add(chapeu); // Adicionado ao boneco
 
-  /* SOMBRAS */
+  // Sombras para todas as partes do boneco
   boneco.traverse(o => {
     if (o.isMesh) o.castShadow = true;
   });
 }
 
-// Animacoes code
-let derreter = false;
-let crescer = false;
+// Código de Animações
+let derreter = false; // Flag para animação de derretimento
+let crescer = false; // Flag para animação de crescimento
 
-// Water puddle for melting snowman
+// Poça de água para derretimento
 const puddle = new THREE.Mesh(
   new THREE.CircleGeometry(1, 32),
   new THREE.MeshStandardMaterial({ 
@@ -134,9 +166,10 @@ const puddle = new THREE.Mesh(
   })
 );
 puddle.rotation.x = -Math.PI / 2;
-puddle.position.y = 0.01; // just above ground
-puddle.scale.set(0, 0, 0); // start invisible
+puddle.position.y = 0.01; // logo acima do chão
+puddle.scale.set(0, 0, 0); // começar invisível
 
+// Ativar derretimento
 function setDerreter(v) {
   derreter = v;
 }
@@ -153,10 +186,15 @@ function atualizarAnimacoes(t) {
   chapeu.position.x = Math.sin(t * 0.5) * 0.04;
   chapeu.rotation.z = Math.sin(t * 0.5) * 0.15;
 
+  // Animação do nariz articulado
+  if (boneco.userData.narizGroup) {
+    boneco.userData.narizGroup.rotation.z = Math.sin(t * 1.5) * 0.2;
+  }
+
   if (derreter && boneco.scale.y > 0.1) {
     boneco.scale.y -= 0.002;
     boneco.position.y -= 0.002;
-    // expand puddle
+    // expandir poça
     const meltFactor = (1 - boneco.scale.y) / 0.9; // 0 to 1
     const puddleSize = meltFactor * 3;
     puddle.scale.set(puddleSize, puddleSize, puddleSize);
@@ -165,7 +203,7 @@ function atualizarAnimacoes(t) {
   if (crescer && boneco.scale.y < 1) {
     boneco.scale.y += 0.002;
     boneco.position.y += 0.002;
-    // shrink puddle
+    // encolher poça
     const growFactor = boneco.scale.y; // 0.1 to 1
     const puddleSize = Math.max(0, (1 - growFactor) / 0.9 * 3);
     puddle.scale.set(puddleSize, puddleSize, puddleSize);
@@ -173,7 +211,7 @@ function atualizarAnimacoes(t) {
       crescer = false;
       boneco.scale.set(1, 1, 1);
       boneco.position.y = 0;
-      puddle.scale.set(0, 0, 0); // hide puddle
+      puddle.scale.set(0, 0, 0); // esconder poça
     }
   }
 }
@@ -184,12 +222,12 @@ function restaurarBoneco() {
 }
 
 // Ambiente code
-// moving clouds array to module scope so updater can access it
+// mover array de nuvens para escopo do módulo para que o atualizador possa acessá-lo
 const clouds = [];
 let _scene = null;
 let sun, sunLight, moon, moonLight, ambientLight, sunDirectional;
 
-// neve variables
+// variáveis de neve
 let snowPoints = null;
 let positions = null;
 let velocities = null;
@@ -199,11 +237,12 @@ const params = {
   height: 30, // spawn height range
 };
 
-// cycle settings
-const cycle = { duration: 240, radius: 40 }; // duration in seconds (longer = slower cycle), radius for sun/moon path
+// Configurações do ciclo dia/noite
+const cycle = { duration: 240, radius: 40 }; // duração em segundos (mais longo = ciclo mais lento), raio para caminho sol/lua
 
+// Função para criar o ambiente (árvores, flores, casas, montanhas, nuvens, sol, lua, neve)
 function criarAmbiente(scene) {
-  // store scene reference for module-level updaters
+  // Armazenar referência da cena para atualizadores de módulo
   _scene = scene;
   const branco = new THREE.MeshStandardMaterial({ color: 0xffffff });
   const verde = new THREE.MeshStandardMaterial({ color: 0x2f5f2f });
@@ -216,12 +255,12 @@ function criarAmbiente(scene) {
 
   function arbusto(x, z) {
     const a = new THREE.Group();
-    const s = 0.6 + Math.random() * 1.0; // random scale 0.6 - 1.6
+    const s = 0.6 + Math.random() * 1.0; // escala aleatória 0.6 - 1.6
     const base = new THREE.Mesh(new THREE.SphereGeometry(0.8 * s), verde);
     const neve = new THREE.Mesh(new THREE.SphereGeometry(0.85 * s, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2), branco);
     neve.position.y = 0.2 * s;
     a.add(base, neve);
-    // small variation in height so bushes don't all sit flat
+    // pequena variação na altura para que os arbustos não fiquem todos planos
     a.position.set(x, 0.6 * s + 0.15, z);
     a.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }});
     scene.add(a);
@@ -229,7 +268,7 @@ function criarAmbiente(scene) {
 
   function arvore(x, z) {
     const a = new THREE.Group();
-    const s = 0.8 + Math.random() * 1.0; // random scale 0.8 - 1.8
+    const s = 0.8 + Math.random() * 1.0; // escala aleatória 0.8 - 1.8
     const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.3 * s, 0.4 * s, 2 * s), castanho);
     tronco.position.y = 1 * s;
     const copa = new THREE.Mesh(new THREE.ConeGeometry(1.5 * s, 3 * s), verde);
@@ -265,27 +304,27 @@ function criarAmbiente(scene) {
   function casa(x, z) {
     const c = new THREE.Group();
     
-    // Random house colors
+    // Cores aleatórias das casas
     const houseColors = [0x8B4513, 0x696969, 0x2F4F4F, 0x800080, 0xFF6347, 0x4682B4];
     const roofColors = [0x8B0000, 0x654321, 0x2F1B14, 0x4B0082];
     
     const houseColor = houseColors[Math.floor(Math.random() * houseColors.length)];
     const roofColor = roofColors[Math.floor(Math.random() * roofColors.length)];
     
-    // Bigger house base
+    // Base da casa maior
     const base = new THREE.Mesh(new THREE.BoxGeometry(5, 3, 4), new THREE.MeshStandardMaterial({ color: houseColor }));
     base.position.y = 1.5;
     
-    // Roof
+    // Telhado
     const telhado = new THREE.Mesh(new THREE.ConeGeometry(3.5, 2), new THREE.MeshStandardMaterial({ color: roofColor }));
     telhado.position.y = 4;
     
-    // Door
+    // Porta
     const porta = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.5), new THREE.MeshStandardMaterial({ color: 0x654321 }));
     porta.position.set(0, 0.75, 2.01);
     porta.rotation.y = Math.PI;
     
-    // Windows
+    // Janelas
     const janela1 = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.6), new THREE.MeshStandardMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.7 }));
     janela1.position.set(1.5, 2, 2.01);
     janela1.rotation.y = Math.PI;
@@ -294,7 +333,7 @@ function criarAmbiente(scene) {
     janela2.position.set(-1.5, 2, 2.01);
     janela2.rotation.y = Math.PI;
     
-    // Chimney
+    // Chaminé
     const chamine = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.5), new THREE.MeshStandardMaterial({ color: 0x696969 }));
     chamine.position.set(1, 4.5, 0);
     
@@ -311,12 +350,12 @@ function criarAmbiente(scene) {
     scene.add(m);
   }
 
-  // Add more random elements
+  // Adicionar mais elementos aleatórios
   for (let i = 0; i < 15; i++) {
     const x = (Math.random() - 0.5) * 100;
     const z = (Math.random() - 0.5) * 100;
     const dist = Math.sqrt(x*x + z*z);
-    if (dist > 10) { // avoid snowman area
+    if (dist > 10) { // evitar área do boneco de neve
       arbusto(x, z);
     }
   }
@@ -341,7 +380,7 @@ function criarAmbiente(scene) {
     }
   }
 
-  // Add houses
+  // Adicionar casas
   for (let i = 0; i < 5; i++) {
     const x = (Math.random() - 0.5) * 150;
     const z = (Math.random() - 0.5) * 150;
@@ -351,7 +390,7 @@ function criarAmbiente(scene) {
     }
   }
 
-  // Add mountains
+  // Adicionar montanhas
   for (let i = 0; i < 8; i++) {
     const x = (Math.random() - 0.5) * 200;
     const z = (Math.random() - 0.5) * 200;
@@ -377,7 +416,7 @@ function criarAmbiente(scene) {
   flor(-3, 7, rosa);
   flor(7, 6, roxo);
 
-  // --- CLOUDS & SUN ---
+  // --- NUVENS & SOL ---
 
   function nuvem(x, y, z, scale = 1) {
     const g = new THREE.Group();
@@ -393,7 +432,7 @@ function criarAmbiente(scene) {
 
     g.add(c1, c2, c3);
     g.position.set(x, y, z);
-    // slower horizontal drift
+    // deriva horizontal mais lenta
     g.userData.speed = 0.004 + Math.random() * 0.008;
     g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; }});
     scene.add(g);
@@ -413,7 +452,7 @@ function criarAmbiente(scene) {
     sunLight.position.copy(sun.position);
     _scene.add(sunLight);
 
-    // Reuse existing DirectionalLight if present, otherwise create one
+    // Reutilizar DirectionalLight existente se presente, caso contrário criar um
     sunDirectional = _scene.children.find(c => c.isDirectionalLight);
     if (!sunDirectional) {
       sunDirectional = new THREE.DirectionalLight(0xfff0cc, 1.0);
@@ -427,11 +466,11 @@ function criarAmbiente(scene) {
       sunDirectional.shadow.camera.top = 30;
       sunDirectional.shadow.camera.bottom = -30;
       _scene.add(sunDirectional);
-      // ensure the target is in the scene for correct shadow orientation
+      // garantir que o alvo esteja na cena para orientação correta das sombras
       sunDirectional.target.position.set(0, 0, 0);
       _scene.add(sunDirectional.target);
     } else {
-      // ensure it casts shadow and is configured
+      // garantir que lança sombra e está configurado
       sunDirectional.castShadow = true;
       sunDirectional.shadow.mapSize.set(2048, 2048);
     }
@@ -460,14 +499,14 @@ function criarAmbiente(scene) {
       positions[3 * i + 0] = (Math.random() - 0.5) * params.area; // x
       positions[3 * i + 1] = Math.random() * params.height + 0.1;  // y
       positions[3 * i + 2] = (Math.random() - 0.5) * params.area; // z
-      velocities[i] = 0.01 + Math.random() * 0.04; // falling speed
+      velocities[i] = 0.01 + Math.random() * 0.04; // velocidade de queda
     }
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const mat = new THREE.PointsMaterial({
-      color: 0xe0f0ff, // light blue tint for snow
+      color: 0xe0f0ff, // tom azul claro para neve
       size: 0.06,
       transparent: true,
       opacity: 0.95,
@@ -476,12 +515,12 @@ function criarAmbiente(scene) {
     });
 
     snowPoints = new THREE.Points(geo, mat);
-    snowPoints.frustumCulled = false; // keep updating even when off-camera
+    snowPoints.frustumCulled = false; // continuar atualizando mesmo quando fora da câmera
     snowPoints.name = 'neve';
     scene.add(snowPoints);
   }
 
-  // create 3 clouds at different positions and sizes (wider and slower)
+  // criar 3 nuvens em posições e tamanhos diferentes (mais largas e lentas)
   nuvem(-12, 12, -22, 2.6);
   nuvem(2, 14, -16, 2.2);
   nuvem(9, 11, -19, 3.0);
@@ -491,9 +530,9 @@ function criarAmbiente(scene) {
 
   criarNeve(scene);
 
-  // find ambient light created in main.js so we can modulate it
+  // encontrar luz ambiente criada em main.js para modulá-la
   ambientLight = _scene.children.find(c => c.isAmbientLight);
-  if (!ambientLight) { // fallback if not present
+  if (!ambientLight) { // fallback se não presente
     ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     _scene.add(ambientLight);
   }
@@ -511,13 +550,13 @@ function atualizarCicloDia(t) {
   const sunFactor = Math.max(0, Math.sin(angle));
   if (sunLight) sunLight.intensity = 1.2 * sunFactor;
 
-  // update directional sun for realistic shadows
+  // atualizar sol direcional para sombras realistas
   if (sunDirectional) {
     sunDirectional.position.copy(sunPos);
-    // point the directional light toward the scene center (or camera)
+    // apontar a luz direcional para o centro da cena (ou câmera)
     sunDirectional.target.position.set(0, 0, 0);
     sunDirectional.target.updateMatrixWorld();
-    // modulate intensity and warm color based on sunFactor
+    // modular intensidade e cor quente baseada no sunFactor
     sunDirectional.intensity = 1.5 * sunFactor;
     sunDirectional.color.setHSL(0.12, 0.8, Math.max(0.4, 0.35 + sunFactor * 0.6));
   }
@@ -535,7 +574,7 @@ function atualizarCicloDia(t) {
   if (_scene) _scene.background = nightColor.clone().lerp(dayColor, sunFactor);
 }
 
-// neve updater
+// atualizador de neve
 let _time = 0;
 function atualizarNeve() {
   if (!snowPoints) return;
@@ -547,14 +586,14 @@ function atualizarNeve() {
   for (let i = 0; i < count; i++) {
     const idx = 3 * i;
 
-    // fall
+    // cair
     pos[idx + 1] -= velocities[i];
 
-    // gentle horizontal drift for a natural look
+    // deriva horizontal suave para um aspeto natural
     pos[idx + 0] += Math.sin(_time + i) * 0.0015;
     pos[idx + 2] += Math.cos(_time * 0.5 + i) * 0.001;
 
-    // respawn when passing the ground (y <= 0)
+    // respawn quando passar pelo chão (y <= 0)
     if (pos[idx + 1] < 0) {
       pos[idx + 0] = (Math.random() - 0.5) * params.area;
       pos[idx + 1] = params.height + Math.random() * 2;
@@ -620,19 +659,52 @@ document.addEventListener('keyup', (event) => {
   keys[event.code] = false;
 });
 
-// Evento de mouse pressionado
+// Evento de mouse pressionado (para câmera ou pick)
 document.addEventListener('mousedown', (event) => {
-  isMouseDown = true;
-  lastMouseX = event.clientX;
-  lastMouseY = event.clientY;
+  // Atualizar posição do mouse
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(bolas);
+
+  if (intersects.length > 0) {
+    selectedBola = intersects[0].object;
+    dragging = true;
+    // Desabilitar rotação da câmera durante drag
+    isMouseDown = false;
+  } else {
+    isMouseDown = true;
+    lastMouseX = event.clientX;
+    lastMouseY = event.clientY;
+  }
 });
 
 document.addEventListener('mouseup', () => {
   isMouseDown = false;
+  dragging = false;
+  selectedBola = null;
 });
 
+// Evento de movimento do mouse (rotação da câmera ou drag)
 document.addEventListener('mousemove', (event) => {
-  if (isMouseDown) {
+  // Atualizar posição do mouse
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  if (dragging && selectedBola) {
+    // Arrastar a bola no plano do chão
+    raycaster.setFromCamera(mouse, camera);
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, intersection);
+    selectedBola.position.x = intersection.x;
+    selectedBola.position.z = intersection.z;
+    // Manter y no chão
+    selectedBola.position.y = 0.25;
+    // Parar rolagem
+    selectedBola.userData.velX = 0;
+    selectedBola.userData.velZ = 0;
+  } else if (isMouseDown) {
     const deltaX = event.clientX - lastMouseX;
     const deltaY = event.clientY - lastMouseY;
     cameraRotationY += deltaX * 0.002;
@@ -643,12 +715,20 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
+// Evento de roda do mouse (zoom)
 document.addEventListener('wheel', (event) => {
   camera.position.z += event.deltaY * 0.01;
   camera.position.z = Math.max(2, Math.min(20, camera.position.z));
 });
 
-let bola = null;
+let bolas = [];
+
+// Pick and Drag variables
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let selectedBola = null;
+let dragging = false;
+let plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // ground plane for dragging
 
 
 /* LUZES */
@@ -696,18 +776,22 @@ window.addEventListener("keydown", e => {
   // debug: log key codes to confirm listener is active
   console.log('keydown', e.code, e.key);
 
-  if (e.code === "Space" && !bola) {
+  if (e.code === "Space") {
     e.preventDefault(); // prevent page scroll on Space
 
-    bola = new THREE.Mesh(
+    const bola = new THREE.Mesh(
       new THREE.SphereGeometry(0.25),
-      new THREE.MeshStandardMaterial({ color: 0xff0000, metalness: 0.1, roughness: 0.8 })
+      new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.1, roughness: 0.8 })
     );
-    bola.position.set(0, 4, 1);
-    bola.userData.velZ = 0.18;
+    // Launch from snowman's position with offset
+    const launchOffset = new THREE.Vector3(0, 4, 1);
+    bola.position.copy(boneco.position).add(launchOffset);
+    bola.userData.velZ = 0.18 + (Math.random() - 0.5) * 0.3; // random forward/back
+    bola.userData.velX = (Math.random() - 0.5) * 0.2; // random left/right
     bola.userData.velY = 0.2; // small upward kick
     bola.castShadow = true;
     scene.add(bola);
+    bolas.push(bola);
     console.log('bola created', bola.position);
   }
 
@@ -716,14 +800,31 @@ window.addEventListener("keydown", e => {
 });
 
 function atualizarBola() {
-  if (bola) {
+  for (let i = bolas.length - 1; i >= 0; i--) {
+    const bola = bolas[i];
+    bola.position.x += bola.userData.velX;
     bola.position.z += bola.userData.velZ;
-    bola.userData.velY -= 0.01;
+    bola.userData.velY -= 0.01; // gravity
     bola.position.y += bola.userData.velY;
 
-    if (bola.position.y <= 0) {
-      scene.remove(bola);
-      bola = null;
+    // Collision with ground
+    if (bola.position.y <= 0.25) { // radius of ball is 0.25
+      bola.position.y = 0.25; // sit on ground
+      bola.userData.velY = 0; // stop vertical movement
+      bola.userData.velX = 0; // stop horizontal movement
+      bola.userData.velZ = 0; // stop horizontal movement
+    }
+
+    // Collision with snowman
+    const distToBoneco = bola.position.distanceTo(boneco.position);
+    if (distToBoneco < 2.0) { // approximate snowman radius
+      // Stop the ball
+      bola.userData.velX = 0;
+      bola.userData.velZ = 0;
+      bola.userData.velY = 0;
+      // Move away slightly
+      const dir = new THREE.Vector3().subVectors(bola.position, boneco.position).normalize();
+      bola.position.addScaledVector(dir, 0.1);
     }
   }
   requestAnimationFrame(atualizarBola);
@@ -731,7 +832,7 @@ function atualizarBola() {
 
 atualizarBola();
 
-/* LOOP */
+// Loop de animação principal
 const clock = new THREE.Clock();
 
 function animate() {
@@ -741,17 +842,17 @@ function animate() {
   atualizarAnimacoes(t);
   atualizarAmbiente(t);
 
-  /* chão segue a câmara */
+  // O chão segue a câmera para efeito infinito
   ground.position.x = camera.position.x;
   ground.position.z = camera.position.z;
 
-  // update camera based on keys
+  // Atualizar câmera baseada nas teclas pressionadas
   const moveSpeed = 0.1;
 
-  // movement with WASD and arrow keys
+  // Movimento com WASD e setas
   const direction = new THREE.Vector3();
   camera.getWorldDirection(direction);
-  direction.y = 0; // keep on horizontal plane
+  direction.y = 0; // Manter no plano horizontal
   direction.normalize();
 
   const right = new THREE.Vector3();
@@ -770,7 +871,11 @@ function animate() {
     camera.position.addScaledVector(right, moveSpeed);
   }
 
-  // update camera rotation (handled by mouse)
+  // Limitar área da câmera ao espaço onde nevam (aprox. -30 a 30 em x e z)
+  camera.position.x = Math.max(-30, Math.min(30, camera.position.x));
+  camera.position.z = Math.max(-30, Math.min(30, camera.position.z));
+
+  // Atualizar rotação da câmera (controlada pelo mouse)
   camera.rotation.y = cameraRotationY;
   camera.rotation.x = cameraRotationX;
 
@@ -779,7 +884,7 @@ function animate() {
 
 animate();
 
-/* RESIZE */
+// Ajustar câmera e renderizador ao redimensionar a janela
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
