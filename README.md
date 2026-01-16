@@ -1,69 +1,33 @@
-# snowman-cg
-Repositório do Projeto 2 de Computação Gráfica
+Projeto 2 - Computação Gráfica: O Boneco de Neve 3D
 
-Snowman Playground – Three.js
+🌟 Funcionalidades e Animações
+O projeto cumpre os requisitos de animação e interação definidos no enunciado:
 
-Projeto interativo desenvolvido em Three.js que apresenta um boneco de neve animado num ambiente invernal. O utilizador pode lançar bolas de neve, interagir com objetos da cena e controlar animações como o derretimento do boneco.
 
-Funcionalidades Principais
-Boneco de Neve
+Animações em Loop (Contínuas):
 
-Construído por composição de geometrias (esferas, cilindros, cones)
+Movimento oscilatório do boneco ("dança" suave).
 
-Animações suaves (balanço, nariz articulado, chapéu)
+Rotação do nariz (cenoura).
 
-Sistema de derretimento e restauro
+Movimento flutuante do chapéu sobre a cabeça.
 
-Poça de água dinâmica ao derreter
+Queda de neve (sistema de partículas com respawn).
 
-Chapéu
+Movimento das nuvens no céu.
 
-Independente da hierarquia do boneco
 
-Não desaparece durante o derretimento
+Animações por Interação:
 
-Pára a animação automaticamente quando atinge o chão
+Ciclo de Derretimento: Ao pressionar 'M', a escala do boneco no eixo Y reduz, a posição ajusta-se e uma poça de água (transparente) expande-se no chão. O chapéu cai realisticamente no chão quando o boneco desaparece.
 
-Bolas de Neve
+Lançamento de Projéteis: Física simples aplicada às bolas de neve lançadas com a tecla Espaço.
 
-Lançadas a partir do boneco
 
-Gravidade simples aplicada
+Ambiente e Luzes:
 
-Campo de jogo limitado
+Sombras dinâmicas (castShadow, receiveShadow) em todos os objetos.
 
-Número máximo de bolas simultâneas (as mais antigas são removidas)
+Iluminação composta por Luz Ambiente, Luz Direcional (Sol) e Luz Pontual.
 
-Ambiente
-
-Chão plano com neve
-
-Árvores e arbustos com tamanhos fixos
-
-Flores decorativas
-
-Nuvens animadas
-
-Sistema de neve com partículas
-
-Iluminação com sombras (Directional + Ambient Light)
-
-Câmara
-
-Movimento com WASD / setas
-
-Rotação com o rato
-
-Zoom com scroll
-
-Área de movimento limitada
-
-⌨️ Controlos
-Tecla / Ação	Função
-W A S D / ↑ ↓ ← →	Mover a câmara
-Rato (arrastar)	Rodar a câmara
-Scroll do rato	Zoom
-Espaço	Lançar bola de neve
-M	Derreter o boneco
-F	Restaurar o boneco
-Clique numa bola	Arrastar a bola
+Cenário gerado proceduralmente com árvores e arbustos aleatórios, evitando a área central.
